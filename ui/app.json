@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "ShopVerse",
+    "slug": "shopverse",
+    "version": "1.0.0",
+    "scheme": "shopverse",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#15157d"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
+  }
+}
