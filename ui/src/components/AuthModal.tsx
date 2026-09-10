@@ -71,99 +71,103 @@ export default function AuthModal({ visible, onClose }: AuthModalProps): React.J
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.keyboardContainer}
-          >
-            <View style={styles.modalContainer}>
-              {/* Close Button */}
-              <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                <Ionicons name="close" size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={StyleSheet.absoluteFill} />
+        </TouchableWithoutFeedback>
 
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-              >
-                {/* Header */}
-                <View style={styles.header}>
-                  <View style={styles.logoBadge}>
-                    <Ionicons name="bag-handle" size={28} color={colors.primary} />
-                  </View>
-                  <Text style={styles.title}>Welcome to ShopVerse</Text>
-                  <Text style={styles.subtitle}>
-                    {isRegisterTab ? 'Create an account to start shopping' : 'Sign in to access your orders & wishlist'}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.keyboardContainer}
+          pointerEvents="box-none"
+        >
+          <View style={styles.modalContainer}>
+            {/* Close Button */}
+            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+              <Ionicons name="close" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.logoBadge}>
+                  <Ionicons name="bag-handle" size={28} color={colors.primary} />
+                </View>
+                <Text style={styles.title}>Welcome to ShopVerse</Text>
+                <Text style={styles.subtitle}>
+                  {isRegisterTab ? 'Create an account to start shopping' : 'Sign in to access your orders & wishlist'}
+                </Text>
+              </View>
+
+              {/* Tab Switches */}
+              <View style={styles.tabContainer}>
+                <TouchableOpacity
+                  style={[styles.tabBtn, !isRegisterTab && styles.activeTabBtn]}
+                  onPress={() => setIsRegisterTab(false)}
+                >
+                  <Text style={[styles.tabText, !isRegisterTab && styles.activeTabText]}>
+                    Sign In
                   </Text>
-                </View>
-
-                {/* Tab Switches */}
-                <View style={styles.tabContainer}>
-                  <TouchableOpacity
-                    style={[styles.tabBtn, !isRegisterTab && styles.activeTabBtn]}
-                    onPress={() => setIsRegisterTab(false)}
-                  >
-                    <Text style={[styles.tabText, !isRegisterTab && styles.activeTabText]}>
-                      Sign In
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.tabBtn, isRegisterTab && styles.activeTabBtn]}
-                    onPress={() => setIsRegisterTab(true)}
-                  >
-                    <Text style={[styles.tabText, isRegisterTab && styles.activeTabText]}>
-                      Register
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Inputs */}
-                {isRegisterTab && (
-                  <InputField
-                    label="Full Name"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChangeText={setName}
-                    icon="person-outline"
-                  />
-                )}
-
-                <InputField
-                  label="Email Address"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  icon="mail-outline"
-                />
-
-                <InputField
-                  label="Password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChangeText={setPassword}
-                  isPassword
-                  icon="lock-closed-outline"
-                />
-
-                {/* Action Button */}
-                <PrimaryButton
-                  title={isRegisterTab ? 'Create Account' : 'Sign In'}
-                  onPress={handleAuth}
-                  loading={loading}
-                  style={styles.submitBtn}
-                />
-
-                {/* Skip Link */}
-                <TouchableOpacity style={styles.skipBtn} onPress={onClose}>
-                  <Text style={styles.skipText}>Continue as Guest</Text>
                 </TouchableOpacity>
-              </ScrollView>
-            </View>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+                <TouchableOpacity
+                  style={[styles.tabBtn, isRegisterTab && styles.activeTabBtn]}
+                  onPress={() => setIsRegisterTab(true)}
+                >
+                  <Text style={[styles.tabText, isRegisterTab && styles.activeTabText]}>
+                    Register
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Inputs */}
+              {isRegisterTab && (
+                <InputField
+                  label="Full Name"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChangeText={setName}
+                  icon="person-outline"
+                />
+              )}
+
+              <InputField
+                label="Email Address"
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                icon="mail-outline"
+              />
+
+              <InputField
+                label="Password"
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+                isPassword
+                icon="lock-closed-outline"
+              />
+
+              {/* Action Button */}
+              <PrimaryButton
+                title={isRegisterTab ? 'Create Account' : 'Sign In'}
+                onPress={handleAuth}
+                loading={loading}
+                style={styles.submitBtn}
+              />
+
+              {/* Skip Link */}
+              <TouchableOpacity style={styles.skipBtn} onPress={onClose}>
+                <Text style={styles.skipText}>Continue as Guest</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }

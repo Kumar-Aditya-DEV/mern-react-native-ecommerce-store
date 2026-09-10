@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputProps } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputProps, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../constants/colors';
 
@@ -18,16 +18,22 @@ const InputField: React.FC<InputFieldProps> = ({
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.inputWrapper, error ? styles.inputError : null]}>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => inputRef.current?.focus()}
+        style={[styles.inputWrapper, error ? styles.inputError : null]}
+      >
         {icon && (
           <Ionicons name={icon} size={20} color={colors.textSecondary} style={styles.leftIcon} />
         )}
 
         <TextInput
+          ref={inputRef}
           style={styles.input}
           placeholderTextColor={colors.textMuted}
           secureTextEntry={isPassword && !showPassword}
@@ -43,7 +49,7 @@ const InputField: React.FC<InputFieldProps> = ({
             />
           </TouchableOpacity>
         )}
-      </View>
+      </TouchableOpacity>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -64,12 +70,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surfaceSubtle,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 0,
+    borderColor: 'transparent',
     paddingHorizontal: 12,
     height: 48,
   },
   inputError: {
+    borderWidth: 1,
     borderColor: colors.error,
   },
   leftIcon: {
@@ -79,6 +86,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: colors.textPrimary,
+    borderWidth: 0,
+    outlineWidth: 0,
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
   },
   eyeBtn: {
     padding: 6,

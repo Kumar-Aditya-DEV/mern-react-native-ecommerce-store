@@ -21,6 +21,9 @@ import ProductCard from '../../src/components/ProductCard';
 import AuthModal from '../../src/components/AuthModal';
 import mockCategories from '../../src/data/categories';
 import mockProducts from '../../src/data/products';
+import { Category, Product } from '../../src/types';
+import productService from '../../src/services/productService';
+import categoryService from '../../src/services/categoryService';
 
 export default function HomeScreen(): React.JSX.Element {
   const router = useRouter();
@@ -29,9 +32,30 @@ export default function HomeScreen(): React.JSX.Element {
   const { addToCart } = useContext(CartContext);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let isMounted = true;
+    const fetchData = async () => {
+      setLoading(true);
+      const [prods, cats] = await Promise.all([
+        productService.getProducts(),
+        categoryService.getCategories()
+      ]);
+      if (isMounted) {
+        if (prods && prods.length > 0) setProducts(prods);
+        if (cats && cats.length > 0) setCategories(cats);
+        setLoading(false);
+      }
+    };
+    fetchData();
+    return () => { isMounted = false; };
+  }, []);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     if (!user) {
       timer = setTimeout(() => {
         setShowAuthModal(true);
@@ -42,8 +66,10 @@ export default function HomeScreen(): React.JSX.Element {
     };
   }, [user]);
 
-  const featuredProducts = mockProducts.filter((p) => p.isFeatured);
-  const latestProducts = mockProducts;
+  const featuredProducts = products.filter((p) => p.isFeatured).length > 0 
+    ? products.filter((p) => p.isFeatured) 
+    : products;
+  const latestProducts = products;
 
   // Responsive grid item width calculation
   const getGridItemWidth = () => {
@@ -128,7 +154,7 @@ export default function HomeScreen(): React.JSX.Element {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesList}
         >
-          {mockCategories.map((item) => (
+          {categories.map((item) => (
             <CategoryCard
               key={item._id}
               category={item}

@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../src/components/Header';
 import colors from '../../src/constants/colors';
 import mockCategories from '../../src/data/categories';
+import { Category } from '../../src/types';
+import categoryService from '../../src/services/categoryService';
 
 export default function CategoriesTabScreen(): React.JSX.Element {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const [categories, setCategories] = useState<Category[]>(mockCategories);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadCategories = async () => {
+      const res = await categoryService.getCategories();
+      if (isMounted && res && res.length > 0) {
+        setCategories(res);
+      }
+    };
+    loadCategories();
+    return () => { isMounted = false; };
+  }, []);
 
   const numColumns = width >= 1024 ? 3 : width >= 600 ? 2 : 1;
   const itemWidth = `${100 / numColumns}%`;
@@ -18,7 +33,7 @@ export default function CategoriesTabScreen(): React.JSX.Element {
       <Header title="All Categories" showBack={false} />
       <FlatList
         key={numColumns}
-        data={mockCategories}
+        data={categories}
         numColumns={numColumns}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContent}

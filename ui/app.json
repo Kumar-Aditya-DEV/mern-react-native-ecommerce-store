@@ -6,9 +6,6 @@
     "scheme": "shopverse",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "backgroundColor": "#15157d"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],

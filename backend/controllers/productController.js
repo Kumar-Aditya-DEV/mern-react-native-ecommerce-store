@@ -17,7 +17,9 @@ const getProducts = async (req, res, next) => {
         }
       : {};
 
-    const category = req.query.category ? { category: req.query.category } : {};
+    const category = req.query.category
+      ? { category: { $regex: req.query.category.trim().split(' ')[0], $options: 'i' } }
+      : {};
 
     const count = await Product.countDocuments({ ...keyword, ...category });
     const products = await Product.find({ ...keyword, ...category })

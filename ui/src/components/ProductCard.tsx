@@ -23,6 +23,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
   const isWishlisted = isInWishlist(product._id);
+  const imageUrl = (product.images && product.images.length > 0) 
+    ? product.images[0] 
+    : (product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop');
 
   if (horizontal) {
     return (
@@ -31,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onPress={onPress}
         activeOpacity={0.8}
       >
-        <Image source={{ uri: product.image }} style={styles.horizontalImage} />
+        <Image source={{ uri: imageUrl }} style={styles.horizontalImage} />
         <View style={styles.horizontalDetails}>
           <Text style={styles.category}>{product.category}</Text>
           <Text style={styles.name} numberOfLines={1}>
@@ -56,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       activeOpacity={0.8}
     >
       <View style={styles.imageContainer}>
-        <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
+        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         {product.discountPercentage && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>-{product.discountPercentage}%</Text>

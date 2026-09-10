@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
-  useWindowDimensions
+  useWindowDimensions,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,9 +18,11 @@ import PrimaryButton from '../src/components/PrimaryButton';
 import QuantitySelector from '../src/components/QuantitySelector';
 import colors from '../src/constants/colors';
 import mockProducts from '../src/data/products';
+import { Product } from '../src/types';
 import { CartContext } from '../src/context/CartContext';
 import { WishlistContext } from '../src/context/WishlistContext';
 import { customAlert } from '../src/utils/alert';
+import productService from '../src/services/productService';
 
 export default function ProductDetailsScreen(): React.JSX.Element {
   const router = useRouter();
@@ -28,10 +31,26 @@ export default function ProductDetailsScreen(): React.JSX.Element {
   const { addToCart } = useContext(CartContext);
   const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
-  const product = mockProducts.find((p) => p._id === id) || mockProducts[0];
+  const [product, setProduct] = useState<Product>(
+    mockProducts.find((p) => p._id === id) || mockProducts[0]
+  );
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (id) {
+      productService.getProductById(id).then((res) => {
+        if (isMounted && res) {
+          setProduct(res);
+        }
+      });
+    }
+    return () => { isMounted = false; };
+  }, [id]);
+
   const isWishlisted = isInWishlist(product._id);
   const isWide = width >= 768;
+  const productImage = (product.images && product.images.length > 0) ? product.images[0] : product.image;
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -52,7 +71,7 @@ export default function ProductDetailsScreen(): React.JSX.Element {
         <View style={isWide ? styles.wideRow : styles.narrowCol}>
           {/* Main Image */}
           <View style={[styles.imageContainer, isWide && styles.imageContainerWide]}>
-            <Image source={{ uri: product.image }} style={styles.image} resizeMode="contain" />
+            <Image source={{ uri: productImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop' }} style={styles.image} resizeMode="contain" />
             {product.discountPercentage && (
               <View style={styles.discountBadge}>
                 <Text style={styles.discountText}>-{product.discountPercentage}%</Text>

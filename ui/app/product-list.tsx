@@ -1,24 +1,44 @@
-import React, { useContext } from 'react';
-import { View, StyleSheet, FlatList, SafeAreaView, useWindowDimensions } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, StyleSheet, FlatList, SafeAreaView, useWindowDimensions, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Header from '../src/components/Header';
 import ProductCard from '../src/components/ProductCard';
 import colors from '../src/constants/colors';
 import mockProducts from '../src/data/products';
+import { Product } from '../src/types';
 import { CartContext } from '../src/context/CartContext';
+import productService from '../src/services/productService';
 
 export default function ProductListScreen(): React.JSX.Element {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { category } = useLocalSearchParams<{ category?: string }>();
   const { addToCart } = useContext(CartContext);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadProducts = async () => {
+      setLoading(true);
+      const res = await productService.getProducts({ category });
+      if (isMounted) {
+        if (res && res.length > 0) {
+          setProducts(res);
+        }
+        setLoading(false);
+      }
+    };
+    loadProducts();
+    return () => { isMounted = false; };
+  }, [category]);
 
   const numColumns = width >= 1100 ? 4 : width >= 768 ? 3 : width <= 340 ? 1 : 2;
   const gridItemWidth = `${100 / numColumns}%`;
 
   const filteredProducts = category
-    ? mockProducts.filter((p) => p.category.toLowerCase() === category.toLowerCase())
-    : mockProducts;
+    ? products.filter((p) => p.category.toLowerCase() === category.toLowerCase())
+    : products;
 
   return (
     <SafeAreaView style={styles.container}>

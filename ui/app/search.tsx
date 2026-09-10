@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, FlatList, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import SearchBar from '../src/components/SearchBar';
@@ -6,24 +6,37 @@ import ProductCard from '../src/components/ProductCard';
 import EmptyState from '../src/components/EmptyState';
 import colors from '../src/constants/colors';
 import mockProducts from '../src/data/products';
+import { Product } from '../src/types';
 import { CartContext } from '../src/context/CartContext';
+import productService from '../src/services/productService';
 
 export default function SearchScreen(): React.JSX.Element {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { addToCart } = useContext(CartContext);
   const [query, setQuery] = useState('');
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+
+  useEffect(() => {
+    let isMounted = true;
+    productService.getProducts({ keyword: query }).then((res) => {
+      if (isMounted && res && res.length > 0) {
+        setProducts(res);
+      }
+    });
+    return () => { isMounted = false; };
+  }, [query]);
 
   const numColumns = width >= 1100 ? 4 : width >= 768 ? 3 : width <= 340 ? 1 : 2;
   const gridItemWidth = `${100 / numColumns}%`;
 
   const filtered = query.trim()
-    ? mockProducts.filter((p) =>
+    ? products.filter((p) =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.category.toLowerCase().includes(query.toLowerCase()) ||
         (p.brand && p.brand.toLowerCase().includes(query.toLowerCase()))
       )
-    : mockProducts;
+    : products;
 
   return (
     <SafeAreaView style={styles.container}>
